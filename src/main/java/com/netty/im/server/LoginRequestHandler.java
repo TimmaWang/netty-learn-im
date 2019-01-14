@@ -1,8 +1,10 @@
 package com.netty.im.server;
 
+import com.netty.im.auth.Session;
 import com.netty.im.common.LoginRequestPacket;
 import com.netty.im.common.LoginResponsePacket;
 import com.netty.im.util.LoginUtil;
+import com.netty.im.util.SessionUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -19,6 +21,7 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
         //返回结果
         LoginResponsePacket responsePacket = new LoginResponsePacket();
 
+
         if (null != loginRequestPacket) {
 
             responsePacket.setVersion(loginRequestPacket.getVersion());
@@ -28,6 +31,13 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
 
                 System.out.println("登录成功！");
                 responsePacket.setSucess(true);
+
+                String userId = LoginUtil.randomUserId(loginRequestPacket.getUserName());
+                responsePacket.setUserId(userId);
+                responsePacket.setUserName(loginRequestPacket.getUserName());
+
+                SessionUtil.bindSession(new Session(userId, loginRequestPacket.getUserName()), cht.channel());
+
             } else {
 
                 responsePacket.setSucess(false);

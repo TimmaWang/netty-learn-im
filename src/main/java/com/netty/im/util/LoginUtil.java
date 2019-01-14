@@ -35,11 +35,15 @@ public class LoginUtil {
             return false;
         }
 
-        if ("timma".equals(loginRequestPacket.getUserName())
-                && "123456".equals(loginRequestPacket.getPassword())) {
+        if ("123456".equals(loginRequestPacket.getPassword())) {
             return true;
         }
 
         return false;
+    }
+
+
+    public static String randomUserId(String userName) {
+        return userName;
     }
 }

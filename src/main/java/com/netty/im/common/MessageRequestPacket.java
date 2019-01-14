@@ -5,6 +5,10 @@ package com.netty.im.common;
  */
 public class MessageRequestPacket extends Packet{
 
+    private String toUserId;
+
+    private String toUserName;
+
     private String message;
 
     @Override
@@ -18,5 +22,21 @@ public class MessageRequestPacket extends Packet{
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getToUserId() {
+        return toUserId;
+    }
+
+    public void setToUserId(String toUserId) {
+        this.toUserId = toUserId;
+    }
+
+    public String getToUserName() {
+        return toUserName;
+    }
+
+    public void setToUserName(String toUserName) {
+        this.toUserName = toUserName;
     }
 }

@@ -3,8 +3,10 @@ package com.netty.im.client;
 import com.netty.im.codec.PacketCodeC;
 import com.netty.im.codec.PacketDecoder;
 import com.netty.im.codec.PacketEncoder;
+import com.netty.im.common.LoginRequestPacket;
 import com.netty.im.common.MessageRequestPacket;
 import com.netty.im.util.LoginUtil;
+import com.netty.im.util.SessionUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -90,21 +92,36 @@ public class NettyClient {
 
 
     public static void startConsoleThread(final Channel channel) {
+
+        final Scanner scanner = new Scanner(System.in);
+        final LoginRequestPacket loginRequestPacket = new LoginRequestPacket();
+
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while (!Thread.interrupted()) {
-                    if (LoginUtil.hasLogin(channel)) {
-                        System.out.println("输入消息发送到服务端");
+                    if (!SessionUtil.hasLogin(channel)) {
+                        System.out.print("输入用户名登录：");
 
-                        Scanner scanner = new Scanner(System.in);
+                        String userName = scanner.nextLine();
 
-                        String line = scanner.nextLine();
 
-                        System.out.println("输入成功，发送...");
+                        loginRequestPacket.setUserName(userName);
+                        loginRequestPacket.setPassword("123456");
 
+                        channel.writeAndFlush(loginRequestPacket);
+
+                        waitForLoginResponse();
+                    } else {
+
+                        System.out.print("输入发送对象姓名：");
+                        String userName = scanner.next();
+                        System.out.print("输入消息：");
+                        String message = scanner.next();
                         MessageRequestPacket messageRequestPacket = new MessageRequestPacket();
-                        messageRequestPacket.setMessage(line);
+                        messageRequestPacket.setMessage(message);
+                        messageRequestPacket.setToUserId(LoginUtil.randomUserId(userName));
+                        messageRequestPacket.setToUserName(userName);
 
                         ByteBuf byteBuf = PacketCodeC.INSTANCE.encode(channel.alloc(), messageRequestPacket);
 
@@ -113,5 +130,12 @@ public class NettyClient {
                 }
             }
         }).start();
+    }
+
+    public static void waitForLoginResponse() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {
+        }
     }
 }

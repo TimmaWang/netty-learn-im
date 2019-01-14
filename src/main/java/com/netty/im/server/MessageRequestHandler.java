@@ -1,7 +1,11 @@
 package com.netty.im.server;
 
+import com.netty.im.auth.Session;
 import com.netty.im.common.MessageRequestPacket;
 import com.netty.im.common.MessageResponsePacket;
+import com.netty.im.util.LoginUtil;
+import com.netty.im.util.SessionUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -13,13 +17,24 @@ public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageRe
     @Override
     public void channelRead0(ChannelHandlerContext ctx, MessageRequestPacket requestPacket) {
 
-        //收到来自客户端的请求
-        System.out.println("收到来自客户端的请求：" + requestPacket.getMessage());
+        // 拿到消息发送方的会话信息
+        Session session = SessionUtil.getSession(ctx.channel());
 
-        //发送信息给客户端
+        //根据消息发送方的会话信息，构造要发送的信息
         MessageResponsePacket messageResponsePacket = new MessageResponsePacket();
-        messageResponsePacket.setMessage("既然客户端给我传了信息，我也给你返回下，说明我收到了你的信息");
+        messageResponsePacket.setFromUserId(session.getUserId());
+        messageResponsePacket.setFromUserName(session.getUserName());
+        messageResponsePacket.setMessage(requestPacket.getMessage());
 
-        ctx.channel().writeAndFlush(messageResponsePacket);
+        //拿到消息接收方的channel
+        Channel toUserChannel = SessionUtil.getChannel(requestPacket.getToUserId());
+        if (null != toUserChannel && SessionUtil.hasLogin(toUserChannel)) {
+            //将消息发送给消息接收方
+            toUserChannel.writeAndFlush(messageResponsePacket);
+        } else {
+
+        }System.err.println("[" + requestPacket.getToUserId() + "] 不在线，发送失败!");
+
+
     }
 }
