@@ -3,8 +3,10 @@ package com.netty.im.client;
 import com.netty.im.codec.PacketCodeC;
 import com.netty.im.codec.PacketDecoder;
 import com.netty.im.codec.PacketEncoder;
+import com.netty.im.command.LoginConsoleCommand;
 import com.netty.im.common.LoginRequestPacket;
 import com.netty.im.common.MessageRequestPacket;
+import com.netty.im.manager.ConsoleCommandManager;
 import com.netty.im.util.LoginUtil;
 import com.netty.im.util.SessionUtil;
 import io.netty.bootstrap.Bootstrap;
@@ -46,6 +48,7 @@ public class NettyClient {
 
                         .addLast(new PacketDecoder())
                                 .addLast(new LoginResponseHandler())
+                                .addLast(new CreateGroupResponseHandler())
                                 .addLast(new MessageResponseHandler())
                                 .addLast(new PacketEncoder());
                     }
@@ -94,38 +97,19 @@ public class NettyClient {
     public static void startConsoleThread(final Channel channel) {
 
         final Scanner scanner = new Scanner(System.in);
-        final LoginRequestPacket loginRequestPacket = new LoginRequestPacket();
+        final ConsoleCommandManager consoleCommandManager = new ConsoleCommandManager();
+        final LoginConsoleCommand loginConsoleCommand = new LoginConsoleCommand();
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while (!Thread.interrupted()) {
                     if (!SessionUtil.hasLogin(channel)) {
-                        System.out.print("输入用户名登录：");
-
-                        String userName = scanner.nextLine();
-
-
-                        loginRequestPacket.setUserName(userName);
-                        loginRequestPacket.setPassword("123456");
-
-                        channel.writeAndFlush(loginRequestPacket);
-
+                        loginConsoleCommand.exec(scanner, channel);
                         waitForLoginResponse();
+
                     } else {
-
-                        System.out.print("输入发送对象姓名：");
-                        String userName = scanner.next();
-                        System.out.print("输入消息：");
-                        String message = scanner.next();
-                        MessageRequestPacket messageRequestPacket = new MessageRequestPacket();
-                        messageRequestPacket.setMessage(message);
-                        messageRequestPacket.setToUserId(LoginUtil.randomUserId(userName));
-                        messageRequestPacket.setToUserName(userName);
-
-                        ByteBuf byteBuf = PacketCodeC.INSTANCE.encode(channel.alloc(), messageRequestPacket);
-
-                        channel.writeAndFlush(byteBuf);
+                        consoleCommandManager.exec(scanner, channel);
                     }
                 }
             }

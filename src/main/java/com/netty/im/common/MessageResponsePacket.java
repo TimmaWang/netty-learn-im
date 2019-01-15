@@ -1,6 +1,6 @@
 package com.netty.im.common;
 
-import static com.netty.im.common.Command.MESSAGE_RESPONSE;
+import static com.netty.im.command.Command.MESSAGE_RESPONSE;
 
 /**
  * Created by timma on 2018/12/11.

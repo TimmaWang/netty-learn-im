@@ -1,5 +1,6 @@
 package com.netty.im.server;
 
+import com.netty.im.client.CreateGroupResponseHandler;
 import com.netty.im.codec.PacketDecoder;
 import com.netty.im.codec.PacketEncoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -43,6 +44,7 @@ public class NettyServer {
 
                         ch.pipeline().addLast(new PacketDecoder());
                         ch.pipeline().addLast(new LoginRequestHandler());
+                        ch.pipeline().addLast(new CreateGroupRequestHandler());
                         ch.pipeline().addLast(new MessageRequestHandler());
                         ch.pipeline().addLast(new PacketEncoder());
                     }

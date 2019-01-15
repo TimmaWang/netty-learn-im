@@ -1,6 +1,6 @@
 package com.netty.im.common;
 
-import static com.netty.im.common.Command.LOGIN_REQUEST;
+import static com.netty.im.command.Command.LOGIN_REQUEST;
 
 /**
  * Created by timma on 2018/12/10.

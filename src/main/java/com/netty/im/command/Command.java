@@ -1,4 +1,4 @@
-package com.netty.im.common;
+package com.netty.im.command;
 
 /**
  * Created by timma on 2018/12/10.
@@ -12,4 +12,8 @@ public interface Command {
     Byte MESSAGE_REQUEST = 3;
 
     Byte MESSAGE_RESPONSE = 4;
+
+    Byte CREATE_GROUP_REQUEST = 5;
+
+    Byte CREATE_GROUP_RESPONSE = 6;
 }

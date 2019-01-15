@@ -1,5 +1,7 @@
 package com.netty.im.common;
 
+import com.netty.im.command.Command;
+
 /**
  * Created by timma on 2018/12/11.
  */
